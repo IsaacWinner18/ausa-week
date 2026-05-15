@@ -5,6 +5,18 @@ import { useRouter } from "next/navigation";
 import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
 import Loader from "@/components/loader";
 import { useAudio } from "@/context/AudioContext";
+import { Caveat, Unbounded } from "next/font/google";
+
+
+const caveat = Caveat({
+  subsets: ['latin'],
+  display: "swap"
+});
+
+const unbounded = Unbounded({
+  subsets: ["latin"],
+  display: "swap",
+});
 
 const OVERLAY_DELAY_MS = 4000;
 const REDIRECT_DELAY_MS = 3000;
@@ -89,22 +101,23 @@ export default function IntroPage() {
       {showOverlay && (
         <div className="absolute inset-0 z-10 flex h-screen items-center justify-center bg-black/30 px-6 backdrop-blur-md">
           <div className="max-w-2xl text-center text-white">
-            <p className="text-sm uppercase tracking-[0.45em] text-orange-300">
+            <p className="text-2xl md:text-3xl font-bold text-transparent [-webkit-text-stroke:2px_#3b82f6]">
               AUSA Experience
             </p>
-            <h1 className="mt-5 text-4xl font-semibold sm:text-5xl">
+            <h1
+              className={`mt-5 text-4xl font-semibold sm:text-5xl ${caveat.className}`}
+            >
               The stars are aligned. Step in when you&apos;re ready.
             </h1>
             <p className="mt-4 text-base text-white/80 sm:text-lg">
-              Once you begin, the energy builds fast and carries you straight
-              into the main experience.
+              Once you begin, there is no going <strong>BACK</strong>.
             </p>
             <button
               type="button"
               onClick={handleStart}
               className="mt-8 inline-flex rounded-full bg-orange-500 px-8 py-4 text-base font-semibold text-black transition hover:bg-orange-400"
             >
-              Are You Ready
+              Are You Ready?!
             </button>
           </div>
         </div>

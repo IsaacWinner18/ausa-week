@@ -13,12 +13,9 @@ const caveat = Caveat({
   display: "swap"
 });
 
-const unbounded = Unbounded({
-  subsets: ["latin"],
-  display: "swap",
-});
 
-const OVERLAY_DELAY_MS = 4000;
+
+const OVERLAY_DELAY_MS = 1000;
 const REDIRECT_DELAY_MS = 3000;
 const SPEED_STEP_INTERVAL_MS = 1000; // Slower interval
 const SUBTLE_SPEED_INCREMENT = 0.05; // Subtle increment

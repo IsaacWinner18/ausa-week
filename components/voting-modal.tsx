@@ -11,6 +11,7 @@ import {
   Loader2,
   ArrowRight,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Participant {
   id: string;
@@ -24,6 +25,24 @@ interface Category {
   id: string;
   name: string;
   slug: string;
+}
+
+interface PaymentResponse {
+  success: boolean;
+  message?: string;
+  payment: {
+    email: string;
+    amountInKobo: number;
+    reference: string;
+  };
+}
+
+interface PaystackTransaction {
+  reference: string;
+  status: string;
+  trans: string;
+  transaction: string;
+  message: string;
 }
 
 interface VotingModalProps {
@@ -59,17 +78,25 @@ export function VotingModal({
   const [mounted, setMounted] = useState(false);
   const [showContent, setShowContent] = useState(false);
 
+  const Router = useRouter();
+
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
-  // Use a separate effect for showContent to avoid grouping with mounting logic
+  // Handle modal state changes (opening/closing)
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => setShowContent(true), 10);
       return () => clearTimeout(timer);
     } else {
+      // Reset state when modal is closed
       setShowContent(false);
+      setStep("voting");
+      setVoteCount(1);
     }
   }, [isOpen]);
 
@@ -78,9 +105,6 @@ export function VotingModal({
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
-      // Reset state when closing
-      setStep("voting");
-      setVoteCount(1);
     }
     return () => {
       document.body.style.overflow = "unset";
@@ -125,9 +149,14 @@ export function VotingModal({
     }
 
     setIsInitializing(true);
-    const PaystackPop = (await import("@paystack/inline-js")).default;
 
     try {
+      const PaystackPop = (await import("@paystack/inline-js")).default;
+
+      if (!PaystackPop) {
+        throw new Error("PaystackPop not found");
+      }
+      
       const response = await fetch("/api/payments/initialize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -139,7 +168,7 @@ export function VotingModal({
         }),
       });
 
-      const data = await response.json();
+      const data: PaymentResponse = await response.json();
 
       if (!data.success) {
         throw new Error(data.message || "Failed to initialize payment");
@@ -151,12 +180,13 @@ export function VotingModal({
         email: data.payment.email,
         amount: data.payment.amountInKobo,
         reference: data.payment.reference,
-        onSuccess: (transaction: any) => {
+        onSuccess: (_transaction: PaystackTransaction) => {
           // Store email for future use
           localStorage.setItem("voter_email", email);
           setIsEmailRequired(false);
           // Show success step
           setStep("success");
+          Router.refresh();
         },
         onCancel: () => {
           setIsInitializing(false);
@@ -339,7 +369,6 @@ export function VotingModal({
                 >
                   Vote Again
                 </button>
-               
               </div>
             </div>
           </div>

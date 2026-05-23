@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Upload, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -20,40 +20,59 @@ type Props = {
 
 export function CreateParticipantForm({ categories, onSuccess }: Props) {
   const [fileName, setFileName] = useState<string | null>(null);
-  const [isPending, setIsPending] = useState(false);
-  const [message, setMessage] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFileName(file.name);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    } else {
+      setFileName(null);
+      setPreviewUrl(null);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   const handleSubmit = async (formData: FormData) => {
-    setIsPending(true);
-    setMessage("");
     setIsSuccess(false);
 
-    try {
-      const response = await fetch("/api/admin/participants", {
-        method: "POST",
-        body: formData,
-      });
+    startTransition(async () => {
+      try {
+        const response = await fetch("/api/admin/participants", {
+          method: "POST",
+          body: formData,
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (response.ok) {
-        setIsSuccess(true);
-        toast.success("Participant registered successfully.");
-        setFileName(null);
-        router.refresh();
-        if (onSuccess) {
-          setTimeout(onSuccess, 1000);
+        if (response.ok) {
+          setIsSuccess(true);
+          toast.success("Participant registered successfully.");
+          setFileName(null);
+          setPreviewUrl(null);
+          router.refresh();
+          if (onSuccess) {
+            setTimeout(onSuccess, 1000);
+          }
+        } else {
+          toast.error(data.message || "Failed to register participant.");
         }
-      } else {
-        toast.error(data.message || "Failed to register participant.");
+      } catch (error) {
+        toast.error("An error occurred. Please try again.");
       }
-    } catch (error) {
-      toast.error("An error occurred. Please try again.");
-    } finally {
-      setIsPending(false);
-    }
+    });
   };
 
   return (
@@ -138,37 +157,40 @@ export function CreateParticipantForm({ categories, onSuccess }: Props) {
               accept="image/*"
               className="hidden"
               id="participant-image"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) setFileName(file.name);
-              }}
+              onChange={handleImageChange}
             />
             <label
               htmlFor="participant-image"
-              className="flex flex-col items-center justify-center w-full h-40 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-all group overflow-hidden"
+              className="flex flex-col items-center justify-center w-full min-h-[10rem] rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-all group overflow-hidden"
             >
-              <div className="flex flex-col items-center justify-center p-6 text-center">
-                <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                  <Upload className="w-6 h-6 text-slate-400 group-hover:text-blue-500 transition-colors" />
+              {previewUrl ? (
+                <div className="relative w-full h-full min-h-[10rem]">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <p className="text-white font-bold text-sm">Change Image</p>
+                  </div>
                 </div>
-                <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                  {fileName || "Choose an image"}
-                </p>
-                <p className="mt-1 text-xs text-slate-500">
-                  PNG, JPG or WEBP (Max. 50MB)
-                </p>
-              </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center p-6 text-center">
+                  <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                    <Upload className="w-6 h-6 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                  </div>
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                    {fileName || "Choose an image"}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    PNG, JPG or WEBP (Max. 50MB)
+                  </p>
+                </div>
+              )}
             </label>
           </div>
         </div>
       </fieldset>
-
-      <p
-        aria-live="polite"
-        className={`min-h-5 text-sm font-medium ${isSuccess ? "text-emerald-600" : "text-rose-600"}`}
-      >
-        {message}
-      </p>
 
       <FormSubmitButton
         label="Register Participant"

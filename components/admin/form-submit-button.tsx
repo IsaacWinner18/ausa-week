@@ -17,7 +17,7 @@ export function FormSubmitButton({
   className,
 }: Props) {
   const { pending } = useFormStatus();
-  const active = isPending ?? pending;
+  const active = isPending || pending;
 
   return (
     <button

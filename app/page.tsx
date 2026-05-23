@@ -518,7 +518,7 @@ function VotingSection() {
                 <div className="flex items-center justify-between mt-4">
                   <div className="text-sm text-slate-600">
                     <span className="text-amber-600 font-bold">
-                      {participant.totalVotes.toLocaleString()}
+                      {participant.totalVotes?.toLocaleString() || 0}
                     </span>{" "}
                     votes
                   </div>

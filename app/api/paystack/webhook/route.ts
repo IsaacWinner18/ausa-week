@@ -22,6 +22,7 @@ export async function POST(request: Request) {
     const signature = request.headers.get("x-paystack-signature");
 
     if (!verifyPaystackSignature(rawBody, signature)) {
+      console.error("Invalid webhook signature.");
       return jsonResponse(
         {
           success: false,
@@ -46,24 +47,6 @@ export async function POST(request: Request) {
 
     await connectToDatabase();
 
-    const payment = await PaymentModel.findOne({ reference });
-    if (!payment) {
-      return jsonResponse(
-        {
-          success: false,
-          message: "Payment not found.",
-        },
-        { status: 404 },
-      );
-    }
-
-    if (payment.status === "success") {
-      return jsonResponse({
-        success: true,
-        duplicate: true,
-      });
-    }
-
     const nextStatus =
       payload.event === "charge.success" || payload.data?.status === "success"
         ? "success"
@@ -71,22 +54,44 @@ export async function POST(request: Request) {
           ? "abandoned"
           : "failed";
 
-    payment.status = nextStatus;
-    payment.gatewayResponse = payload.data?.gateway_response ?? "";
-    payment.channel = payload.data?.channel ?? "";
-    payment.paidAt = payload.data?.paid_at ? new Date(payload.data.paid_at) : null;
+    const updatedPayment = await PaymentModel.findOneAndUpdate(
+      {
+        reference,
+        status: { $ne: "success" }, 
+      },
+      {
+        $set: {
+          status: nextStatus,
+          gatewayResponse: payload.data?.gateway_response ?? "",
+          channel: payload.data?.channel ?? "",
+          paidAt: payload.data?.paid_at ? new Date(payload.data.paid_at) : null,
+        },
+      },
+      { new: true },
+    );
 
-    await payment.save();
+    // If no document was updated, it's either a duplicate or the reference doesn't exist
+    if (!updatedPayment) {
+      const existingPayment = await PaymentModel.findOne({ reference });
+      
+      if (existingPayment?.status === "success") {
+        return jsonResponse({ success: true, duplicate: true });
+      }
 
+      return jsonResponse(
+        { success: false, message: "Payment not found or already processed." },
+        { status: 404 },
+      );
+    }
+
+    // Only increment votes if the transition TO success just happened
     if (nextStatus === "success") {
-      await ParticipantModel.findByIdAndUpdate(payment.participantId, {
-        $inc: { totalVotes: payment.voteCount },
+      await ParticipantModel.findByIdAndUpdate(updatedPayment.participantId, {
+        $inc: { totalVotes: updatedPayment.voteCount },
       });
     }
 
-    return jsonResponse({
-      success: true,
-    });
+    return jsonResponse({ success: true });
   } catch (error) {
     console.error("Failed to process Paystack webhook", error);
     return serverError("Failed to process Paystack webhook.");

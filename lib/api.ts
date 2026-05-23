@@ -141,6 +141,7 @@ export function verifyPaystackSignature(rawBody: string, signature: string | nul
   const secret = process.env.PAYSTACK_SECRET_KEY;
 
   if (!secret || !signature) {
+    console.error("Paystack secret or signature is missing.");
     return false;
   }
 

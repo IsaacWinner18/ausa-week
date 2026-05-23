@@ -93,7 +93,7 @@ export function MobileNav({ user }: { user: any }) {
         <div className="relative h-full">
           <button 
             onClick={() => setIsOpen(false)}
-            className="absolute top-6 right-[-3rem] p-2 text-white hover:bg-white/10 rounded-lg transition"
+            className="absolute top-6 right-[0.5rem] p-2 text-white hover:bg-white/10 rounded-lg transition"
           >
             <X className="w-6 h-6" />
           </button>

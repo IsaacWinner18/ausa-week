@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Upload, Check } from "lucide-react";
 import { FormSubmitButton } from "@/components/admin/form-submit-button";
 import { useRouter } from "next/navigation";
@@ -29,64 +29,75 @@ export function EditParticipantForm({
   categories,
   onSuccess,
 }: EditParticipantFormProps) {
-  const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
-  const [isPending, setIsPending] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFileName(file.name);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    } else {
+      setFileName(null);
+      setPreviewUrl(null);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   const handleSubmit = async (formData: FormData) => {
-    setIsPending(true);
-    setMessage("");
     setIsSuccess(false);
 
-    try {
-      // Use standard form submission for the image and details
-      // If there's an image, we might need to handle it differently
-      // but for simplicity and to match the requirement of using API routes:
+    startTransition(async () => {
+      try {
+        const payload = new FormData();
+        payload.append("name", formData.get("name") as string);
+        payload.append("bio", formData.get("bio") as string);
 
-      const payload = new FormData();
-      payload.append("name", formData.get("name") as string);
-      payload.append("bio", formData.get("bio") as string);
+        const categorySlugs = formData.getAll("categorySlugs");
+        categorySlugs.forEach((slug) =>
+          payload.append("categorySlugs[]", slug as string),
+        );
 
-      const categorySlugs = formData.getAll("categorySlugs");
-      categorySlugs.forEach((slug) =>
-        payload.append("categorySlugs[]", slug as string),
-      );
-
-      const imageFile = formData.get("image") as File;
-      if (imageFile && imageFile.size > 0) {
-        payload.append("image", imageFile);
-      }
-
-      // Note: Standard JSON API doesn't handle files well without multipart/form-data
-      // I'll use a direct PATCH request with the FormData
-      const response = await fetch(
-        `/api/admin/participants/${participant.id}`,
-        {
-          method: "PATCH",
-          // Browser automatically sets content-type to multipart/form-data with boundary
-          body: payload,
-        },
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setIsSuccess(true);
-        toast.success("Participant updated successfully.");
-        router.refresh();
-        if (onSuccess) {
-          setTimeout(onSuccess, 1000);
+        const imageFile = formData.get("image") as File;
+        if (imageFile && imageFile.size > 0) {
+          payload.append("image", imageFile);
         }
-      } else {
-        toast.error(data.message || "Failed to update participant.");
+
+        const response = await fetch(
+          `/api/admin/participants/${participant.id}`,
+          {
+            method: "PATCH",
+            body: payload,
+          },
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setIsSuccess(true);
+          toast.success("Participant updated successfully.");
+          router.refresh();
+          if (onSuccess) {
+            setTimeout(onSuccess, 1000);
+          }
+        } else {
+          toast.error(data.message || "Failed to update participant.");
+        }
+      } catch (error) {
+        toast.error("An error occurred. Please try again.");
       }
-    } catch (error) {
-      toast.error("An error occurred. Please try again.");
-    } finally {
-      setIsPending(false);
-    }
+    });
   };
 
   return (
@@ -164,17 +175,25 @@ export function EditParticipantForm({
               accept="image/*"
               className="hidden"
               id="edit-participant-image-api"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) setFileName(file.name);
-              }}
+              onChange={handleImageChange}
             />
             <label
               htmlFor="edit-participant-image-api"
-              className="flex flex-col items-center justify-center w-full h-40 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-all group overflow-hidden"
+              className="flex flex-col items-center justify-center w-full min-h-[10rem] rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-all group overflow-hidden"
             >
-              {participant.imageUrl && !fileName ? (
-                <div className="relative w-full h-full">
+              {previewUrl ? (
+                <div className="relative w-full h-full min-h-[10rem]">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <p className="text-white font-bold text-sm">Change Image</p>
+                  </div>
+                </div>
+              ) : participant.imageUrl ? (
+                <div className="relative w-full h-full min-h-[10rem]">
                   <img
                     src={participant.imageUrl}
                     alt="Current profile"
@@ -200,14 +219,6 @@ export function EditParticipantForm({
           </div>
         </div>
       </fieldset>
-
-      {message && (
-        <p
-          className={`text-sm font-medium ${isSuccess ? "text-emerald-600" : "text-rose-600"}`}
-        >
-          {message}
-        </p>
-      )}
 
       <FormSubmitButton
         label="Update Participant"

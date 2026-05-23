@@ -15,10 +15,9 @@ import {
 import { VotingModal } from "@/components/voting-modal";
 import { Caveat, Unbounded } from "next/font/google";
 
-
 const caveat = Caveat({
-  subsets: ['latin'],
-  display: "swap"
+  subsets: ["latin"],
+  display: "swap",
 });
 
 const unbounded = Unbounded({
@@ -118,7 +117,9 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="px-2 md:px-5 mt-10 mb-5">
-        <div className={`text-orange-600 text-2xl md:text-xl ${caveat.className}`}>
+        <div
+          className={`text-orange-600 text-2xl md:text-xl ${caveat.className}`}
+        >
           Are you ready?!
         </div>
         <div
@@ -156,7 +157,6 @@ function HeroSection() {
 
   return (
     <div className="relative h-[300px] md:h-[300px] md:mx-60 overflow-hidden">
-      
       {slides.map((slide, index) => (
         <div
           key={slide.id}
@@ -255,27 +255,24 @@ function VotingSection() {
     }
   }, [activeCategoryId]);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        console.log("Fetching categories...");
-        const response = await fetch(
-          "/api/public-categories?includeParticipants=true",
-        );
+  const fetchCategories = async (isInitial = false) => {
+    try {
+      if (isInitial) setLoading(true);
+      const response = await fetch(
+        "/api/public-categories?includeParticipants=true",
+      );
 
-        if (!response.ok) {
-          const text = await response.text();
-          console.error(
-            `API Error ${response.status}:`,
-            text.substring(0, 100),
-          );
-          throw new Error(`API responded with status ${response.status}`);
-        }
+      if (!response.ok) {
+        const text = await response.text();
+        console.error(`API Error ${response.status}:`, text.substring(0, 100));
+        throw new Error(`API responded with status ${response.status}`);
+      }
 
-        const data = await response.json();
-        if (data.success) {
-          setCategories(data.categories);
+      const data = await response.json();
+      if (data.success) {
+        setCategories(data.categories);
 
+        if (isInitial) {
           // Check for query params
           const categorySlug = searchParams.get("category");
           const participantSlug = searchParams.get("participant");
@@ -287,7 +284,6 @@ function VotingSection() {
             if (foundCategory) {
               setActiveCategoryId(foundCategory.id);
 
-              // If we have a participant slug, scroll to it after a short delay
               if (participantSlug) {
                 setTimeout(() => {
                   const element = document.getElementById(
@@ -298,7 +294,6 @@ function VotingSection() {
                       behavior: "smooth",
                       block: "center",
                     });
-                    // Highlight the element briefly
                     element.classList.add(
                       "ring-4",
                       "ring-amber-500",
@@ -321,15 +316,26 @@ function VotingSection() {
             setActiveCategoryId(data.categories[0].id);
           }
         }
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    } finally {
+      if (isInitial) setLoading(false);
+    }
+  };
 
-    fetchCategories();
+  useEffect(() => {
+    fetchCategories(true);
   }, [searchParams]);
+
+  // Poll for updates every 2 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchCategories(false);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const activeCategory = categories.find((c) => c.id === activeCategoryId);
 
@@ -380,10 +386,7 @@ function VotingSection() {
         >
           {loading
             ? Array.from({ length: 5 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-10 w-28 animate-pulse mx-1"
-                />
+                <div key={i} className="h-10 w-28 animate-pulse mx-1" />
               ))
             : categories.map((category, index) => (
                 <div key={category.id} className="flex items-center">
@@ -399,15 +402,8 @@ function VotingSection() {
                     }`}
                   >
                     {activeCategoryId === category.id && (
-                      <div
-                        className="absolute inset-0  z-0 bg-orange-600 rounded-xl"
-                        
-                      >
-                    
-                        <div
-                          className="absolute inset-0 rounded-lg pointer-events-none opacity-50"
-                          
-                        />
+                      <div className="absolute inset-0  z-0 bg-orange-600 rounded-xl">
+                        <div className="absolute inset-0 rounded-lg pointer-events-none opacity-50" />
                         {/* Gloss Reflection */}
                         <div
                           className="absolute top-0 left-0 right-0 h-[45%] rounded-t-lg opacity-40"

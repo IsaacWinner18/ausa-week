@@ -98,7 +98,7 @@ export default function IntroPage() {
       {showOverlay && (
         <div className="absolute inset-0 z-10 flex h-screen items-center justify-center bg-black/30 px-6 backdrop-blur-md">
           <div className="max-w-2xl text-center text-white">
-            <p className="text-2xl md:text-3xl font-bold text-transparent [-webkit-text-stroke:2px_#3b82f6]">
+            <p className="text-2xl md:text-3xl font-bold text-transparent [-webkit-text-stroke:2px_#eab308]">
               AUSA Experience
             </p>
             <h1
@@ -112,7 +112,7 @@ export default function IntroPage() {
             <button
               type="button"
               onClick={handleStart}
-              className="mt-8 inline-flex rounded-full bg-orange-500 px-8 py-4 text-base font-semibold text-black transition hover:bg-orange-400"
+              className="mt-8 inline-flex rounded-full bg-yellow-400 px-8 py-4 text-base font-semibold text-black transition hover:bg-orange-400"
             >
               Are You Ready?!
             </button>

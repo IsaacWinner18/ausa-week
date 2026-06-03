@@ -47,7 +47,7 @@ export default async function AdminPage() {
             administrator to grant you access.
           </p>
           <div className="flex flex-col gap-3">
-            <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 break-all">
               Email: {adminUser.email}
             </div>
           </div>
@@ -93,27 +93,27 @@ export default async function AdminPage() {
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 md:space-y-10 max-w-full overflow-hidden">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-2">
           Dashboard Overview
         </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">
+        <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 mt-1">
           Welcome back, {adminUser.name || adminUser.email}.
         </p>
       </header>
 
       {/* Stats Grid */}
-      <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <section className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {statCards.map((card) => (
           <div
             key={card.label}
-            className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition group"
+            className="bg-white dark:bg-slate-900 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition group"
           >
             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 group-hover:text-blue-600 transition">
               {card.label}
             </p>
-            <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+            <p className="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white break-words">
               {card.value}
             </p>
           </div>
@@ -122,18 +122,18 @@ export default async function AdminPage() {
 
       {/* Recent Activity */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white">
             Recent Transactions
           </h2>
-          <button className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition">
+          <button className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition whitespace-nowrap">
             View All
           </button>
         </div>
 
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm min-w-[800px]">
+          <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+            <table className="w-full text-left text-sm min-w-[700px]">
               <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   <th className="px-6 py-4 font-semibold">Reference</th>

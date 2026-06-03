@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, useTransition } from "react";
 import { Upload, Check } from "lucide-react";
 import { FormSubmitButton } from "@/components/admin/form-submit-button";
@@ -153,7 +154,7 @@ export function EditParticipantForm({
 
         <label className="block space-y-2">
           <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-            Bio / Description
+            Bio / Description (optional)
           </span>
           <textarea
             name="bio"
@@ -183,10 +184,12 @@ export function EditParticipantForm({
             >
               {previewUrl ? (
                 <div className="relative w-full h-full min-h-[10rem]">
-                  <img
+                  <Image
                     src={previewUrl}
                     alt="Preview"
-                    className="w-full h-full object-cover"
+                    fill
+                    unoptimized
+                    className="object-cover"
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <p className="text-white font-bold text-sm">Change Image</p>
@@ -194,10 +197,12 @@ export function EditParticipantForm({
                 </div>
               ) : participant.imageUrl ? (
                 <div className="relative w-full h-full min-h-[10rem]">
-                  <img
+                  <Image
                     src={participant.imageUrl}
                     alt="Current profile"
-                    className="w-full h-full object-cover opacity-50"
+                    fill
+                    unoptimized
+                    className="object-cover opacity-50"
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <p className="text-sm font-bold text-slate-900 dark:text-white bg-white/80 dark:bg-slate-900/80 px-3 py-1 rounded-full">

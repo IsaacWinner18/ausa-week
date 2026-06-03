@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "images.earnstak.com",
+      },
+      {
+        protocol: "https",
         hostname: "**",
       },
     ],

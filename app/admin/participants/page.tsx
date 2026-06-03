@@ -1,6 +1,7 @@
 import { connectToDatabase } from "@/lib/db";
 import { CategoryModel } from "@/models/Category";
 import { ParticipantModel } from "@/models/Participant";
+import Image from "next/image";
 import { CreateParticipantForm } from "@/components/admin/create-participant-form";
 import { CreateParticipantModal } from "@/components/admin/create-participant-modal";
 import { ParticipantActions } from "@/components/admin/participant-actions";
@@ -55,7 +56,9 @@ export default async function AdminParticipantsPage() {
                   <th className="px-6 py-4 font-semibold">Name</th>
                   <th className="px-6 py-4 font-semibold">Categories</th>
                   <th className="px-6 py-4 font-semibold text-right">Votes</th>
-                  <th className="px-6 py-4 font-semibold text-right">Actions</th>
+                  <th className="px-6 py-4 font-semibold text-right">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -80,9 +83,12 @@ export default async function AdminParticipantsPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         {participant.imageUrl && (
-                          <img
+                          <Image
                             src={participant.imageUrl}
-                            alt=""
+                            alt={participant.name || "Participant avatar"}
+                            unoptimized
+                            width={32}
+                            height={32}
                             className="w-8 h-8 rounded-full object-cover shrink-0"
                           />
                         )}
@@ -119,12 +125,15 @@ export default async function AdminParticipantsPage() {
                           bio: participant.bio || "",
                           imageUrl: participant.imageUrl || "",
                           isActive: participant.isActive,
-                          categorySlugs: participant.categoryIds.map((catId: any) => {
-                            const category = categories.find(
-                              (c: any) => c._id.toString() === catId.toString(),
-                            );
-                            return category?.slug || "";
-                          }).filter(Boolean),
+                          categorySlugs: participant.categoryIds
+                            .map((catId: any) => {
+                              const category = categories.find(
+                                (c: any) =>
+                                  c._id.toString() === catId.toString(),
+                              );
+                              return category?.slug || "";
+                            })
+                            .filter(Boolean),
                         }}
                         categories={categoryOptions}
                       />

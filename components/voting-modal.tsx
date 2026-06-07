@@ -239,7 +239,7 @@ export function VotingModal({
                   src={participant.imageUrl}
                   alt={participant.name}
                   fill
-                  className="object-contain object-top"
+                  className="object-cover"
                 />
               ) : (
                 <div className="w-full h-full bg-slate-100 flex items-center justify-center">
@@ -248,7 +248,7 @@ export function VotingModal({
                   </span>
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             </div>
 
             {/* Voting Details */}

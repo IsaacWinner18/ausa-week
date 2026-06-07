@@ -44,35 +44,35 @@ const slides = [
   {
     id: 1,
     image:
-      "https://res.cloudinary.com/dkfmaqtpy/image/upload/v1747926954/AUSA_DINNER_AND_AWARD1_tsbv8l.jpg",
+      "https://res.cloudinary.com/dcvlszzoy/image/upload/v1780826552/photo_2026-06-07_10-55-58_juugdm.jpg",
     title: "Vote for Your Favorites",
     description: "Make your voice heard in our community voting system",
   },
   {
     id: 2,
     image:
-      "https://res.cloudinary.com/dkfmaqtpy/image/upload/v1747926936/AUSA_DINNER_TICKET_m9pvez.jpg",
+      "https://res.cloudinary.com/dcvlszzoy/image/upload/v1780826552/photo_2026-06-07_10-55-55_pf2o28.jpg",
     title: "Discover New Categories",
     description: "Explore and vote across 30 exciting categories",
   },
   {
     id: 3,
     image:
-      "https://res.cloudinary.com/dkfmaqtpy/image/upload/v1747926944/AUSA_DINNER_TICKET_2_snaaet.jpg",
+      "https://res.cloudinary.com/dcvlszzoy/image/upload/v1780827653/photo_2026-06-07_10-56-02_cp2ani.jpg",
     title: "Join the Community",
     description: "Be part of the decision-making process",
   },
   {
     id: 4,
     image:
-      "https://res.cloudinary.com/dkfmaqtpy/image/upload/v1747926934/AUSA_DINNER_TICKET_3_ib2t6i.jpg",
+      "https://res.cloudinary.com/dcvlszzoy/image/upload/v1780827651/photo_2026-06-07_10-56-06_rfvetm.jpg",
     title: "Join the Community",
     description: "Be part of the decision-making process",
   },
   {
     id: 5,
     image:
-      "https://res.cloudinary.com/dkfmaqtpy/image/upload/v1747926942/AUSA_DINNER_TICKET_4_mrcldi.jpg",
+      "https://res.cloudinary.com/dcvlszzoy/image/upload/v1780827651/photo_2026-06-07_10-56-10_dbzygd.jpg",
     title: "Join the Community",
     description: "Be part of the decision-making process",
   },
@@ -116,7 +116,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-slate-50">
-      <div className="px-2 md:px-5 mt-10 mb-5">
+      <div className="px-2 md:px-5 mt-2 mb-5">
         <div
           className={`text-orange-600 text-2xl md:text-xl ${caveat.className}`}
         >
@@ -125,7 +125,7 @@ export default function Home() {
         <div
           className={`text-4xl md:text-6xl font-bold text-transparent [-webkit-text-stroke:2px_#3b82f6] ${unbounded.className}`}
         >
-          AUSA WEEK <span className={`${caveat.className}`}>ultra</span>
+          AUSA WEEK <span className={`${caveat.className} text-sm`}>Grand pose</span>
         </div>
       </div>
 
@@ -155,79 +155,68 @@ function HeroSection() {
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <div className="relative h-[300px] md:h-[300px] md:mx-60 overflow-hidden">
-      {slides.map((slide, index) => (
-        <div
-          key={slide.id}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
-            index === currentSlide
-              ? "opacity-100"
-              : "opacity-0 pointer-events-none"
-          }`}
-        >
-          <div className="absolute inset-0 bg-black/30 z-10" />
+return (
+  <div className="relative w-full overflow-hidden flex items-center justify-center md:px-60 bg-zinc-950">
+    <div className="invisible pointer-events-none aria-hidden">
+      <Image
+        src={slides[currentSlide].image}
+        alt=""
+        width={1920}
+        height={1080}
+        className="w-auto h-auto max-w-full max-h-[70vh] object-contain"
+      />
+    </div>
+
+    {/* Visible Slide Track */}
+    {slides.map((slide, index) => (
+      <div
+        key={slide.id}
+        className={`absolute inset-y-0 left-0 right-0 transition-opacity duration-1000 flex items-center justify-center p-4 ${
+          index === currentSlide
+            ? "opacity-100 z-10"
+            : "opacity-0 pointer-events-none z-0"
+        }`}
+      >
+        {/* Constrained wrapper to isolate overlay/content strictly to image boundaries */}
+        <div className="relative max-w-full h-full flex items-center justify-center">
           <Image
             src={slide.image}
             alt={slide.title}
-            fill
-            className="object-cover"
+            width={1920}
+            height={1080}
             priority={index === 0}
+            className="w-auto h-auto max-w-full max-h-[70vh] object-contain shadow-xl rounded-lg"
           />
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4">
-            <div className="max-w-3xl mx-auto">
-              <h1 className="text-4xl md:text-6xl font-bold text-amber-400 mb-4 drop-shadow-lg">
-                {slide.title}
-              </h1>
-              <p className="text-xl md:text-2xl text-white mb-8 drop-shadow-md">
-                {slide.description}
-              </p>
-              <button
-                className="bg-amber-500 hover:bg-amber-600 text-blue-900 font-bold px-8 py-4 text-lg rounded-full inline-flex items-center justify-center transition-colors shadow-lg"
-                onClick={() => {
-                  const votingSection =
-                    document.getElementById("voting-section");
-                  votingSection?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                Start Voting Now
-              </button>
-            </div>
+
+          {/* Optional: Dark Overlay strictly over the image asset */}
+          <div className="absolute inset-0 bg-black/20 pointer-events-none rounded-lg" />
+
+          {/* Text/Interactive Content Layer */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 text-white">
+            {/* Slide title / content overlay */}
           </div>
         </div>
-      ))}
+      </div>
+    ))}
 
-      <button
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/20 hover:bg-white/40 text-white rounded-full h-12 w-12 flex items-center justify-center transition-colors backdrop-blur-sm"
-        onClick={prevSlide}
-      >
-        <ChevronLeft className="h-8 w-8" />
-        <span className="sr-only">Previous slide</span>
-      </button>
+    {/* Navigation Controls */}
+    <button
+      className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white rounded-full h-12 w-12 flex items-center justify-center transition-colors backdrop-blur-sm"
+      onClick={prevSlide}
+    >
+      <ChevronLeft className="h-8 w-8" />
+      <span className="sr-only">Previous slide</span>
+    </button>
 
-      <button
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/20 hover:bg-white/40 text-white rounded-full h-12 w-12 flex items-center justify-center transition-colors backdrop-blur-sm"
-        onClick={nextSlide}
-      >
-        <ChevronRight className="h-8 w-8" />
-        <span className="sr-only">Next slide</span>
-      </button>
-
-      {/* <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex space-x-2">
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            className={`w-3 h-3 rounded-full transition-colors ${
-              index === currentSlide ? "bg-amber-500" : "bg-white/50"
-            }`}
-            onClick={() => setCurrentSlide(index)}
-          >
-            <span className="sr-only">Go to slide {index + 1}</span>
-          </button>
-        ))}
-      </div> */}
-    </div>
-  );
+    <button
+      className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white rounded-full h-12 w-12 flex items-center justify-center transition-colors backdrop-blur-sm"
+      onClick={nextSlide}
+    >
+      <ChevronRight className="h-8 w-8" />
+      <span className="sr-only">Next slide</span>
+    </button>
+  </div>
+);
 }
 
 function VotingSection() {
@@ -362,7 +351,7 @@ function VotingSection() {
   };
 
   return (
-    <section id="voting-section" className="py-16 px-4 max-w-7xl mx-auto">
+    <section id="voting-section" className="py-12 px-4 max-w-7xl mx-auto">
       <div className="mb-12">
         <h2
           className={`text-2xl md:text-4xl font-bold text-slate-900 mb-4 ${caveat.className}`}
@@ -460,7 +449,7 @@ function VotingSection() {
                     alt={participant.name}
                     fill
                     loading="lazy"
-                    className="object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
                     sizes="(max-width: 768px) 88vw, 360px"
                   />
                 ) : (
@@ -479,7 +468,7 @@ function VotingSection() {
                       participant.id,
                     );
                   }}
-                  className="absolute top-3 right-3 z-10 p-2 bg-white/90 backdrop-blur-sm text-slate-700 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-amber-500 hover:text-white transform hover:scale-110"
+                  className="absolute top-3 right-3 z-10 p-2 bg-white/10 backdrop-blur-sm text-amber-500 rounded-full shadow-lg transition-all duration-300 hover:bg-amber-500 hover:text-white transform hover:scale-110"
                   title="Share profile"
                 >
                   {copiedId === participant.id ? (
@@ -493,7 +482,7 @@ function VotingSection() {
               </div>
 
               <div className="p-4">
-                <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start justify-between flex-wrap gap-2">
                   <h3 className="text-lg font-bold text-slate-900 leading-tight">
                     {participant.name}
                   </h3>

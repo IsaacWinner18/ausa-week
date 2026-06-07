@@ -109,7 +109,6 @@ export async function getAdminDashboardData() {
       .lean(),
     PaymentModel.find()
       .sort({ createdAt: -1 })
-      .limit(10)
       .populate("userId", "email")
       .populate("participantId", "name slug")
       .populate("categoryId", "name slug")

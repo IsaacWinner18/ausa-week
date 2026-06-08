@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { redirect } from "next/navigation";
 import { connectToDatabase } from "@/lib/db";
 import { getAdminDashboardData, getCurrentAdminUser } from "@/lib/admin";

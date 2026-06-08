@@ -6,14 +6,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   ChevronLeft,
   ChevronRight,
-  ArrowRight,
   ArrowDown,
   Share2,
   Check,
-  Copy,
 } from "lucide-react";
 import { VotingModal } from "@/components/voting-modal";
 import { Caveat, Unbounded } from "next/font/google";
+import Link from "next/link";
 
 const caveat = Caveat({
   subsets: ["latin"],
@@ -125,7 +124,8 @@ export default function Home() {
         <div
           className={`text-4xl md:text-6xl font-bold text-transparent [-webkit-text-stroke:2px_#3b82f6] ${unbounded.className}`}
         >
-          AUSA WEEK <span className={`${caveat.className} text-sm`}>Grand pose</span>
+          AUSA WEEK{" "}
+          <span className={`${caveat.className} text-sm`}>Grand pose</span>
         </div>
       </div>
 
@@ -133,6 +133,58 @@ export default function Home() {
       <Suspense fallback={<div className="h-screen bg-slate-50" />}>
         <VotingSection />
       </Suspense>
+
+     <section className="max-w-md mx-auto my-6 p-5 bg-white border border-gray-100 rounded-2xl shadow-sm">
+  <h3 className="text-gray-900 font-semibold text-lg mb-4">
+    Having any issues?
+  </h3>
+  
+  <div className="space-y-4">
+    <div className="flex items-center gap-4 p-2 rounded-xl hover:bg-gray-50 transition-colors">
+      <div className="shrink-0">
+        <Image
+          src="/isaacwinner.png"
+          alt="Isaac Winner"
+          width={56}
+          height={56}
+          className="rounded-full object-cover aspect-square ring-2 ring-gray-100"
+        />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-gray-900 truncate">Isaac Winner</p>
+        <p className="text-xs text-gray-500 font-medium mb-1">Software Developer</p>
+        <Link 
+          href="https://wa.me/2348119188295" 
+          className="inline-flex text-xs text-green-600 font-semibold underline decoration-2 underline-offset-4 hover:text-green-700 transition-colors"
+        >
+          Chat on WhatsApp
+        </Link>
+      </div>
+    </div>
+
+    <div className="flex items-center gap-4 p-2 rounded-xl hover:bg-gray-50 transition-colors">
+      <div className="shrink-0">
+        <Image
+          src="/sodmak.png" 
+          alt="Sodmak"
+          width={56}
+          height={56}
+          className="rounded-full object-cover aspect-square ring-2 ring-gray-100"
+        />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-gray-900 truncate">Sodmak</p>
+        <p className="text-xs text-gray-500 font-medium mb-1">Social Director</p>
+        <Link 
+          href="https://wa.me/YOUR_SODMAK_NUMBER" 
+          className="inline-flex text-xs text-green-600 font-semibold underline decoration-2 underline-offset-4 hover:text-green-700 transition-colors"
+        >
+          Chat on WhatsApp
+        </Link>
+      </div>
+    </div>
+  </div>
+</section>
     </main>
   );
 }
@@ -220,7 +272,6 @@ return (
 }
 
 function VotingSection() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
@@ -231,7 +282,7 @@ function VotingSection() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<{ [key: string]: HTMLButtonElement | null }>({});
-  const participantRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  // const participantRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // Auto-scroll active tab into view
   useEffect(() => {

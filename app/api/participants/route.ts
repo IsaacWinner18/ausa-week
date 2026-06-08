@@ -8,6 +8,17 @@ import { ParticipantModel } from "@/models/Participant";
 
 export const runtime = "nodejs";
 
+type LeanParticipantSummary = {
+  _id: { toString(): string };
+  name: string;
+  slug: string;
+  imageUrl?: string;
+  isActive: boolean;
+  totalVotes: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
 export async function GET(request: NextRequest) {
   const search = request.nextUrl.searchParams.get("search")?.trim();
   const categorySlug = request.nextUrl.searchParams.get("category")?.trim();
@@ -27,7 +38,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (categorySlug) {
-      const category = await CategoryModel.findOne({ slug: categorySlug.toLowerCase() });
+      const category = await CategoryModel.findOne({
+        slug: categorySlug.toLowerCase(),
+      }).lean();
       if (!category) {
         return jsonResponse({
           success: true,
@@ -36,6 +49,29 @@ export async function GET(request: NextRequest) {
       }
 
       query.categoryIds = category._id;
+    }
+
+    if (categorySlug) {
+      const participants = (await ParticipantModel.find(query)
+        .select("name slug imageUrl isActive totalVotes createdAt updatedAt")
+        .sort({ totalVotes: -1, name: 1 })
+        .lean()) as LeanParticipantSummary[];
+
+      return jsonResponse({
+        success: true,
+        participants: participants.map((participant) => ({
+          id: participant._id.toString(),
+          name: participant.name,
+          slug: participant.slug,
+          bio: "",
+          imageUrl: participant.imageUrl ?? "",
+          isActive: participant.isActive,
+          totalVotes: participant.totalVotes,
+          categories: [],
+          createdAt: participant.createdAt ?? null,
+          updatedAt: participant.updatedAt ?? null,
+        })),
+      });
     }
 
     const participants = await ParticipantModel.find(query)

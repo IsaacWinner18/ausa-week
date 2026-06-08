@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, Suspense } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  Suspense,
+  useCallback,
+  useMemo,
+} from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -36,8 +43,10 @@ interface Category {
   id: string;
   name: string;
   slug: string;
-  participants: Participant[];
+  participants?: Participant[];
 }
+
+const PARTICIPANT_REFRESH_INTERVAL_MS = 30000;
 
 const slides = [
   {
@@ -134,57 +143,65 @@ export default function Home() {
         <VotingSection />
       </Suspense>
 
-     <section className="max-w-md mx-auto my-6 p-5 bg-white border border-gray-100 rounded-2xl shadow-sm">
-  <h3 className="text-gray-900 font-semibold text-lg mb-4">
-    Having any issues?
-  </h3>
-  
-  <div className="space-y-4">
-    <div className="flex items-center gap-4 p-2 rounded-xl hover:bg-gray-50 transition-colors">
-      <div className="shrink-0">
-        <Image
-          src="/isaacwinner.png"
-          alt="Isaac Winner"
-          width={56}
-          height={56}
-          className="rounded-full object-cover aspect-square ring-2 ring-gray-100"
-        />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-gray-900 truncate">Isaac Winner</p>
-        <p className="text-xs text-gray-500 font-medium mb-1">Software Developer</p>
-        <Link 
-          href="https://wa.me/2348119188295" 
-          className="inline-flex text-xs text-green-600 font-semibold underline decoration-2 underline-offset-4 hover:text-green-700 transition-colors"
-        >
-          Chat on WhatsApp
-        </Link>
-      </div>
-    </div>
+      <section className="max-w-md mx-auto my-6 p-5 bg-white border border-gray-100 rounded-2xl shadow-sm">
+        <h3 className="text-gray-900 font-semibold text-lg mb-4">
+          Having any issues?
+        </h3>
 
-    <div className="flex items-center gap-4 p-2 rounded-xl hover:bg-gray-50 transition-colors">
-      <div className="shrink-0">
-        <Image
-          src="/sodmak.png" 
-          alt="Sodmak"
-          width={56}
-          height={56}
-          className="rounded-full object-cover aspect-square ring-2 ring-gray-100"
-        />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-gray-900 truncate">Sodmak</p>
-        <p className="text-xs text-gray-500 font-medium mb-1">Social Director</p>
-        <Link 
-          href="https://wa.me/2349078859865" 
-          className="inline-flex text-xs text-green-600 font-semibold underline decoration-2 underline-offset-4 hover:text-green-700 transition-colors"
-        >
-          Chat on WhatsApp
-        </Link>
-      </div>
-    </div>
-  </div>
-</section>
+        <div className="space-y-4">
+          <div className="flex items-center gap-4 p-2 rounded-xl hover:bg-gray-50 transition-colors">
+            <div className="shrink-0">
+              <Image
+                src="/isaacwinner.png"
+                alt="Isaac Winner"
+                width={56}
+                height={56}
+                className="rounded-full object-cover aspect-square ring-2 ring-gray-100"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900 truncate">
+                Isaac Winner
+              </p>
+              <p className="text-xs text-gray-500 font-medium mb-1">
+                Software Developer
+              </p>
+              <Link
+                href="https://wa.me/2348119188295"
+                className="inline-flex text-xs text-green-600 font-semibold underline decoration-2 underline-offset-4 hover:text-green-700 transition-colors"
+              >
+                Chat on WhatsApp
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 p-2 rounded-xl hover:bg-gray-50 transition-colors">
+            <div className="shrink-0">
+              <Image
+                src="/sodmak.png"
+                alt="Sodmak"
+                width={56}
+                height={56}
+                className="rounded-full object-cover aspect-square ring-2 ring-gray-100"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900 truncate">
+                Sodmak
+              </p>
+              <p className="text-xs text-gray-500 font-medium mb-1">
+                Social Director
+              </p>
+              <Link
+                href="https://wa.me/2349078859865 "
+                className="inline-flex text-xs text-green-600 font-semibold underline decoration-2 underline-offset-4 hover:text-green-700 transition-colors"
+              >
+                Chat on WhatsApp
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
@@ -207,68 +224,68 @@ function HeroSection() {
     return () => clearInterval(interval);
   }, []);
 
-return (
-  <div className="relative w-full overflow-hidden flex items-center justify-center md:px-60 bg-zinc-950">
-    <div className="invisible pointer-events-none aria-hidden">
-      <Image
-        src={slides[currentSlide].image}
-        alt=""
-        width={1920}
-        height={1080}
-        className="w-auto h-auto max-w-full max-h-[70vh] object-contain"
-      />
-    </div>
+  return (
+    <div className="relative w-full overflow-hidden flex items-center justify-center md:px-60 bg-zinc-950">
+      <div className="invisible pointer-events-none aria-hidden">
+        <Image
+          src={slides[currentSlide].image}
+          alt=""
+          width={1920}
+          height={1080}
+          className="w-auto h-auto max-w-full max-h-[70vh] object-contain"
+        />
+      </div>
 
-    {/* Visible Slide Track */}
-    {slides.map((slide, index) => (
-      <div
-        key={slide.id}
-        className={`absolute inset-y-0 left-0 right-0 transition-opacity duration-1000 flex items-center justify-center p-4 ${
-          index === currentSlide
-            ? "opacity-100 z-10"
-            : "opacity-0 pointer-events-none z-0"
-        }`}
-      >
-        {/* Constrained wrapper to isolate overlay/content strictly to image boundaries */}
-        <div className="relative max-w-full h-full flex items-center justify-center">
-          <Image
-            src={slide.image}
-            alt={slide.title}
-            width={1920}
-            height={1080}
-            priority={index === 0}
-            className="w-auto h-auto max-w-full max-h-[70vh] object-contain shadow-xl rounded-lg"
-          />
+      {/* Visible Slide Track */}
+      {slides.map((slide, index) => (
+        <div
+          key={slide.id}
+          className={`absolute inset-y-0 left-0 right-0 transition-opacity duration-1000 flex items-center justify-center p-4 ${
+            index === currentSlide
+              ? "opacity-100 z-10"
+              : "opacity-0 pointer-events-none z-0"
+          }`}
+        >
+          {/* Constrained wrapper to isolate overlay/content strictly to image boundaries */}
+          <div className="relative max-w-full h-full flex items-center justify-center">
+            <Image
+              src={slide.image}
+              alt={slide.title}
+              width={1920}
+              height={1080}
+              priority={index === 0}
+              className="w-auto h-auto max-w-full max-h-[70vh] object-contain shadow-xl rounded-lg"
+            />
 
-          {/* Optional: Dark Overlay strictly over the image asset */}
-          <div className="absolute inset-0 bg-black/20 pointer-events-none rounded-lg" />
+            {/* Optional: Dark Overlay strictly over the image asset */}
+            <div className="absolute inset-0 bg-black/20 pointer-events-none rounded-lg" />
 
-          {/* Text/Interactive Content Layer */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 text-white">
-            {/* Slide title / content overlay */}
+            {/* Text/Interactive Content Layer */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 text-white">
+              {/* Slide title / content overlay */}
+            </div>
           </div>
         </div>
-      </div>
-    ))}
+      ))}
 
-    {/* Navigation Controls */}
-    <button
-      className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white rounded-full h-12 w-12 flex items-center justify-center transition-colors backdrop-blur-sm"
-      onClick={prevSlide}
-    >
-      <ChevronLeft className="h-8 w-8" />
-      <span className="sr-only">Previous slide</span>
-    </button>
+      {/* Navigation Controls */}
+      <button
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white rounded-full h-12 w-12 flex items-center justify-center transition-colors backdrop-blur-sm"
+        onClick={prevSlide}
+      >
+        <ChevronLeft className="h-8 w-8" />
+        <span className="sr-only">Previous slide</span>
+      </button>
 
-    <button
-      className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white rounded-full h-12 w-12 flex items-center justify-center transition-colors backdrop-blur-sm"
-      onClick={nextSlide}
-    >
-      <ChevronRight className="h-8 w-8" />
-      <span className="sr-only">Next slide</span>
-    </button>
-  </div>
-);
+      <button
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white rounded-full h-12 w-12 flex items-center justify-center transition-colors backdrop-blur-sm"
+        onClick={nextSlide}
+      >
+        <ChevronRight className="h-8 w-8" />
+        <span className="sr-only">Next slide</span>
+      </button>
+    </div>
+  );
 }
 
 function VotingSection() {
@@ -276,12 +293,20 @@ function VotingSection() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [participantsByCategoryId, setParticipantsByCategoryId] = useState<
+    Record<string, Participant[]>
+  >({});
+  const [loadingParticipantsFor, setLoadingParticipantsFor] = useState<
+    string | null
+  >(null);
   const [selectedParticipant, setSelectedParticipant] =
     useState<Participant | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const pendingParticipantSlugRef = useRef<string | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+  const isFetchingCategoriesRef = useRef(false);
   // const participantRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // Auto-scroll active tab into view
@@ -295,24 +320,73 @@ function VotingSection() {
     }
   }, [activeCategoryId]);
 
-  const fetchCategories = async (isInitial = false) => {
-    try {
-      if (isInitial) setLoading(true);
-      const response = await fetch(
-        "/api/public-categories?includeParticipants=true",
-      );
-
-      if (!response.ok) {
-        const text = await response.text();
-        console.error(`API Error ${response.status}:`, text.substring(0, 100));
-        throw new Error(`API responded with status ${response.status}`);
+  const fetchParticipants = useCallback(
+    async (
+      category: Category,
+      options?: { force?: boolean; signal?: AbortSignal },
+    ) => {
+      if (!options?.force && participantsByCategoryId[category.id]) {
+        return;
       }
 
-      const data = await response.json();
-      if (data.success) {
-        setCategories(data.categories);
+      try {
+        if (!participantsByCategoryId[category.id]) {
+          queueMicrotask(() => setLoadingParticipantsFor(category.id));
+        }
 
-        if (isInitial) {
+        const response = await fetch(
+          `/api/participants?category=${encodeURIComponent(category.slug)}`,
+          { signal: options?.signal },
+        );
+
+        if (!response.ok) {
+          const text = await response.text();
+          console.error(
+            `API Error ${response.status}:`,
+            text.substring(0, 100),
+          );
+          throw new Error(`API responded with status ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          setParticipantsByCategoryId((current) => ({
+            ...current,
+            [category.id]: data.participants,
+          }));
+        }
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          console.error("Error fetching participants:", error);
+        }
+      } finally {
+        setLoadingParticipantsFor((current) =>
+          current === category.id ? null : current,
+        );
+      }
+    },
+    [participantsByCategoryId],
+  );
+
+  const fetchCategories = useCallback(
+    async (signal?: AbortSignal) => {
+      try {
+        const response = await fetch("/api/public-categories", { signal });
+
+        if (!response.ok) {
+          const text = await response.text();
+          console.error(
+            `API Error ${response.status}:`,
+            text.substring(0, 100),
+          );
+          throw new Error(`API responded with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          setCategories(data.categories);
+
           // Check for query params
           const categorySlug = searchParams.get("category");
           const participantSlug = searchParams.get("participant");
@@ -322,33 +396,8 @@ function VotingSection() {
               (c: Category) => c.slug === categorySlug,
             );
             if (foundCategory) {
+              pendingParticipantSlugRef.current = participantSlug;
               setActiveCategoryId(foundCategory.id);
-
-              if (participantSlug) {
-                setTimeout(() => {
-                  const element = document.getElementById(
-                    `participant-${participantSlug}`,
-                  );
-                  if (element) {
-                    element.scrollIntoView({
-                      behavior: "smooth",
-                      block: "center",
-                    });
-                    element.classList.add(
-                      "ring-4",
-                      "ring-amber-500",
-                      "ring-offset-4",
-                    );
-                    setTimeout(() => {
-                      element.classList.remove(
-                        "ring-4",
-                        "ring-amber-500",
-                        "ring-offset-4",
-                      );
-                    }, 3000);
-                  }
-                }, 500);
-              }
             } else if (data.categories.length > 0) {
               setActiveCategoryId(data.categories[0].id);
             }
@@ -356,28 +405,101 @@ function VotingSection() {
             setActiveCategoryId(data.categories[0].id);
           }
         }
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          console.error("Error fetching categories:", error);
+        }
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    } finally {
-      if (isInitial) setLoading(false);
-    }
-  };
+    },
+    [searchParams],
+  );
 
   useEffect(() => {
-    fetchCategories(true);
-  }, [searchParams]);
+    if (isFetchingCategoriesRef.current) return;
 
-  // Poll for updates every 2 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchCategories(false);
-    }, 2000);
+    const controller = new AbortController();
+    isFetchingCategoriesRef.current = true;
 
-    return () => clearInterval(interval);
-  }, []);
+    void fetchCategories(controller.signal).finally(() => {
+      isFetchingCategoriesRef.current = false;
+    });
+
+    return () => {
+      controller.abort();
+      isFetchingCategoriesRef.current = false;
+    };
+  }, [fetchCategories]);
 
   const activeCategory = categories.find((c) => c.id === activeCategoryId);
+  const activeParticipants = useMemo(
+    () =>
+      activeCategoryId
+        ? (participantsByCategoryId[activeCategoryId] ?? [])
+        : [],
+    [activeCategoryId, participantsByCategoryId],
+  );
+  const isLoadingActiveParticipants =
+    !!activeCategoryId &&
+    loadingParticipantsFor === activeCategoryId &&
+    !participantsByCategoryId[activeCategoryId];
+
+  useEffect(() => {
+    if (!activeCategory) {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    // Defer to avoid react-hooks/set-state-in-effect warning.
+    // `fetchParticipants` will trigger state updates when the request resolves.
+    const id = window.setTimeout(() => {
+      void fetchParticipants(activeCategory, { signal: controller.signal });
+    }, 0);
+
+    return () => {
+      window.clearTimeout(id);
+      controller.abort();
+    };
+  }, [activeCategory, fetchParticipants]);
+
+  useEffect(() => {
+    if (!activeCategory) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      fetchParticipants(activeCategory, { force: true });
+    }, PARTICIPANT_REFRESH_INTERVAL_MS);
+
+    return () => clearInterval(interval);
+  }, [activeCategory, fetchParticipants]);
+
+  useEffect(() => {
+    const participantSlug = pendingParticipantSlugRef.current;
+
+    if (!participantSlug || isLoadingActiveParticipants) {
+      return;
+    }
+
+    const element = document.getElementById(`participant-${participantSlug}`);
+
+    if (!element) {
+      return;
+    }
+
+    pendingParticipantSlugRef.current = null;
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+    element.classList.add("ring-4", "ring-amber-500", "ring-offset-4");
+
+    setTimeout(() => {
+      element.classList.remove("ring-4", "ring-amber-500", "ring-offset-4");
+    }, 3000);
+  }, [activeParticipants, isLoadingActiveParticipants]);
 
   const handleShare = (
     categorySlug: string,
@@ -486,8 +608,15 @@ function VotingSection() {
               className="h-64 bg-slate-200 animate-pulse rounded-xl"
             />
           ))
-        ) : activeCategory?.participants.length ? (
-          activeCategory.participants.map((participant) => (
+        ) : isLoadingActiveParticipants ? (
+          Array.from({ length: 8 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-64 bg-slate-200 animate-pulse rounded-xl"
+            />
+          ))
+        ) : activeCategory && activeParticipants.length ? (
+          activeParticipants.map((participant) => (
             <div
               key={participant.id}
               id={`participant-${participant.slug}`}

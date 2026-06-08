@@ -176,7 +176,7 @@ export default function Home() {
         <p className="text-sm font-semibold text-gray-900 truncate">Sodmak</p>
         <p className="text-xs text-gray-500 font-medium mb-1">Social Director</p>
         <Link 
-          href="https://wa.me/YOUR_SODMAK_NUMBER" 
+          href="https://wa.me/2349078859865" 
           className="inline-flex text-xs text-green-600 font-semibold underline decoration-2 underline-offset-4 hover:text-green-700 transition-colors"
         >
           Chat on WhatsApp

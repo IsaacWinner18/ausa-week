@@ -30,6 +30,7 @@ export async function connectToDatabase() {
   if (!globalCache.promise) {
     globalCache.promise = mongoose.connect(MONGODB_URI as string, {
       bufferCommands: false,
+      maxPoolSize: 10
     });
   }
 

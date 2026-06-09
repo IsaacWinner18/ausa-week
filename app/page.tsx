@@ -10,6 +10,7 @@ import {
 } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import { FORCE_INTRO_PAGE } from "@/lib/config";
 import {
   ChevronLeft,
   ChevronRight,
@@ -92,6 +93,12 @@ export default function Home() {
 
   useEffect(() => {
     const checkIntro = () => {
+      // If FORCE_INTRO_PAGE is enabled, always redirect to intro
+      if (FORCE_INTRO_PAGE) {
+        router.replace("/intro");
+        return;
+      }
+
       const introShown = localStorage.getItem("intro_shown");
       const introTimestamp = localStorage.getItem("intro_timestamp");
       const now = Date.now();

@@ -6,14 +6,12 @@ import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
 import Loader from "@/components/loader";
 import { useAudio } from "@/context/AudioContext";
 import { Caveat, Unbounded } from "next/font/google";
-
+import { FORCE_INTRO_PAGE } from "@/lib/config";
 
 const caveat = Caveat({
-  subsets: ['latin'],
-  display: "swap"
+  subsets: ["latin"],
+  display: "swap",
 });
-
-
 
 const OVERLAY_DELAY_MS = 1000;
 const REDIRECT_DELAY_MS = 3000;
@@ -87,7 +85,10 @@ export default function IntroPage() {
       localStorage.setItem("intro_shown", "true");
       localStorage.setItem("intro_timestamp", Date.now().toString());
 
-      router.replace("/");
+      // Only redirect to home if FORCE_INTRO_PAGE is false
+      if (!FORCE_INTRO_PAGE) {
+        router.replace("/");
+      }
     }, REDIRECT_DELAY_MS);
   };
 
@@ -104,10 +105,18 @@ export default function IntroPage() {
             <h1
               className={`mt-5 text-4xl font-semibold sm:text-5xl ${caveat.className}`}
             >
-              The stars are aligned. Step in when you&apos;re ready.
+              {FORCE_INTRO_PAGE
+                ? "Voting Has Ended"
+                : "The stars are aligned. Step in when you're ready."}
             </h1>
             <p className="mt-4 text-base text-white/80 sm:text-lg">
-              Once you begin, there is no going <strong>BACK</strong>.
+              {FORCE_INTRO_PAGE ? (
+                "Thank you for participating!"
+              ) : (
+                <>
+                  Once you begin, there is no going <strong>BACK</strong>.
+                </>
+              )}
             </p>
             <button
               type="button"
